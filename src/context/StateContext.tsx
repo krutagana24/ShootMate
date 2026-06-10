@@ -3,6 +3,8 @@ import { User, CollabRequest, ChatMessage, Review, Notification, Report, SystemA
 import { INITIAL_CREATOR, INITIAL_PROFESSIONALS, INITIAL_REQUESTS, INITIAL_REVIEWS, INITIAL_MESSAGES, INITIAL_REPORTS, INITIAL_ANALYTICS, SEEDED_PORTFOLIOS } from '../data/mockData';
 import { countriesList as INITIAL_COUNTRIES_LIST } from '../data/countries';
 
+const API_URL = import.meta.env.VITE_API_URL || "https://shootmate.onrender.com";
+
 interface StateContextType {
   activeUser: User;
   activeRole: 'creator' | 'professional' | 'admin';
@@ -65,7 +67,7 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const res = await fetch('/api/locations');
+        const res = await fetch(`${API_URL}/api/locations`);
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
@@ -82,7 +84,7 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const fetchProfessionals = async () => {
       try {
-        const res = await fetch('/api/professionals');
+        const res = await fetch(`${API_URL}/api/professionals`);
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data)) {
@@ -375,7 +377,7 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const loginUser = async (email: string, password?: string): Promise<boolean> => {
     if (password) {
       try {
-        const res = await fetch('/api/auth/login', {
+        const res = await fetch(`${API_URL}/api/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -419,7 +421,7 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsLoggedIn(true);
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -496,7 +498,7 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       // Sync with MongoDB backend
-      fetch('/api/auth/register', {
+      fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -565,7 +567,7 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setRequests(prev => [newRequest, ...prev]);
 
     // Sync with MongoDB Project collection
-    fetch('/api/projects', {
+    fetch(`${API_URL}/api/projects`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

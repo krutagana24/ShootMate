@@ -40,12 +40,16 @@ export const AuthPages: React.FC = () => {
       setError('');
       setSuccess('');
       try {
-        const res = await fetch('/api/auth/google', {
+        const API_URL = import.meta.env.VITE_API_URL || "https://shootmate.onrender.com";
+
+        const res = await fetch(`${API_URL}/api/auth/google`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ token: tokenResponse.access_token }),
+          body: JSON.stringify({
+            token: tokenResponse.access_token,
+          }),
         });
 
         const data = await res.json();
