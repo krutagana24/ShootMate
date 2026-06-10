@@ -40,11 +40,11 @@ async function loadLocations() {
     console.log('[ShootMate Backend] Fetching global countries and cities...');
     const countriesRes = await fetch('https://countriesnow.space/api/v0.1/countries');
     const codesRes = await fetch('https://countriesnow.space/api/v0.1/countries/codes');
-    
+
     if (countriesRes.ok && codesRes.ok) {
       const countriesJson = await countriesRes.json() as { error: boolean; data: { country: string; cities: string[] }[] };
       const codesJson = await codesRes.json() as { error: boolean; data: { name: string; dial_code: string }[] };
-      
+
       if (!countriesJson.error && !codesJson.error) {
         const merged: LocationData[] = countriesJson.data.map(c => {
           const matchedCode = codesJson.data.find(code => code.name.toLowerCase() === c.country.toLowerCase());
@@ -69,19 +69,19 @@ async function loadLocations() {
           let digitsCount = 10;
           const countryLower = c.country.toLowerCase();
           if (
-            countryLower === 'australia' || 
-            countryLower === 'france' || 
-            countryLower === 'united arab emirates' || 
-            countryLower === 'austria' || 
-            countryLower === 'belgium' || 
-            countryLower === 'denmark' || 
-            countryLower === 'greece' || 
-            countryLower === 'ireland' || 
-            countryLower === 'new zealand' || 
-            countryLower === 'norway' || 
-            countryLower === 'portugal' || 
-            countryLower === 'spain' || 
-            countryLower === 'switzerland' || 
+            countryLower === 'australia' ||
+            countryLower === 'france' ||
+            countryLower === 'united arab emirates' ||
+            countryLower === 'austria' ||
+            countryLower === 'belgium' ||
+            countryLower === 'denmark' ||
+            countryLower === 'greece' ||
+            countryLower === 'ireland' ||
+            countryLower === 'new zealand' ||
+            countryLower === 'norway' ||
+            countryLower === 'portugal' ||
+            countryLower === 'spain' ||
+            countryLower === 'switzerland' ||
             countryLower === 'sweden'
           ) {
             digitsCount = 9;
@@ -93,7 +93,7 @@ async function loadLocations() {
             digitsCount: digitsCount
           };
         });
-        
+
         cachedLocations = merged.sort((a, b) => a.name.localeCompare(b.name));
         console.log(`[ShootMate Backend] Successfully loaded ${cachedLocations.length} countries and their cities dynamically.`);
       }
@@ -107,7 +107,9 @@ async function loadLocations() {
 
 // Trigger load on startup
 loadLocations();
-
+app.get("/", (req, res) => {
+  res.send("ShootMate Backend Running 🚀");
+});
 app.get('/api/locations', (req: express.Request, res: express.Response) => {
   res.json(cachedLocations);
 });
