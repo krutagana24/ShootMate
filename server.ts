@@ -113,7 +113,10 @@ app.get("/", (req, res) => {
 app.get('/api/locations', (req: express.Request, res: express.Response) => {
   res.json(cachedLocations);
 });
-
+app.get('/test-google', (req, res) => {
+  console.log('TEST GOOGLE ROUTE HIT');
+  res.json({ success: true });
+});
 app.post('/api/auth/google', async (req: express.Request, res: express.Response) => {
   console.log("=== GOOGLE AUTH REQUEST RECEIVED ===");
   console.log("Request Body:", req.body);
