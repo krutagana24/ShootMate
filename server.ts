@@ -4,6 +4,7 @@ import { connectDB } from './server/config/db';
 import User from './server/models/User';
 import Project from './server/models/Project';
 import bcrypt from 'bcryptjs';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -22,6 +23,14 @@ connectDB().then(async () => {
 });
 
 const app = express();
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://shoot-mate.vercel.app'
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
@@ -116,6 +125,13 @@ app.get('/api/locations', (req: express.Request, res: express.Response) => {
 app.get('/test-google', (req, res) => {
   console.log('TEST GOOGLE ROUTE HIT');
   res.json({ success: true });
+});
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
 });
 app.post('/api/auth/google', async (req: express.Request, res: express.Response) => {
   console.log("=== GOOGLE AUTH REQUEST RECEIVED ===");
