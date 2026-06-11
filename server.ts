@@ -115,34 +115,62 @@ app.get('/api/locations', (req: express.Request, res: express.Response) => {
 });
 
 app.post('/api/auth/google', async (req: express.Request, res: express.Response) => {
+  console.log("=== GOOGLE AUTH REQUEST RECEIVED ===");
+  console.log("Request Body:", req.body);
+
   const { token } = req.body;
+
   if (!token) {
+    console.log("No token received");
     return res.status(400).json({ error: 'Google Access Token is required' });
   }
 
   try {
-    // Validate access token with Google userinfo API
-    const googleResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    console.log("Validating token with Google...");
+
+    const googleResponse = await fetch(
+      'https://www.googleapis.com/oauth2/v3/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("Google Response Status:", googleResponse.status);
 
     if (!googleResponse.ok) {
-      return res.status(401).json({ error: 'Failed to authenticate token with Google' });
+      const errorText = await googleResponse.text();
+      console.log("Google Error:", errorText);
+
+      return res.status(401).json({
+        error: 'Failed to authenticate token with Google'
+      });
     }
 
-    const userData = await googleResponse.json() as { email?: string; name?: string; picture?: string };
+    const userData = await googleResponse.json() as {
+      email?: string;
+      name?: string;
+      picture?: string;
+    };
+
+    console.log("Google User Data:", userData);
+
     const { email, name, picture } = userData;
 
     if (!email) {
-      return res.status(400).json({ error: 'Google did not return an email' });
+      console.log("Google returned no email");
+      return res.status(400).json({
+        error: 'Google did not return an email'
+      });
     }
 
-    // Check if user exists in database
-    const dbUser = await User.findOne({ email: email.toLowerCase() });
+    const dbUser = await User.findOne({
+      email: email.toLowerCase()
+    });
 
-    // Return user details for login or onboarding
+    console.log("DB User Found:", !!dbUser);
+
     return res.status(200).json({
       success: true,
       email,
@@ -151,12 +179,15 @@ app.post('/api/auth/google', async (req: express.Request, res: express.Response)
       exists: !!dbUser,
       user: dbUser || null
     });
+
   } catch (err) {
-    console.error('Google verification error:', err);
-    return res.status(500).json({ error: 'Internal server error during Google auth' });
+    console.error("GOOGLE AUTH ERROR:", err);
+
+    return res.status(500).json({
+      error: 'Internal server error during Google auth'
+    });
   }
 });
-
 // Register or update user profile
 app.post('/api/auth/register', async (req: express.Request, res: express.Response) => {
   try {
